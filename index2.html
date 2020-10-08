@@ -23,7 +23,6 @@ input[type=text] {
 <script language = "javascript" type = "text/javascript"  >
 /*const appConfig = new blockstack.AppConfig(["store_write", "publish_data"])
  var userSession = new blockstack.UserSession({ appConfig, });*/
-
  
  function signin() {
    blockstack.redirectToSignIn('https://yahiayaya7.github.io/App_Yahia/index2.html','https://yahiayaya7.github.io/App_Yahia/manifest.json',["store_write", "publish_data"]);
@@ -59,40 +58,97 @@ input[type=text] {
    })
  }
  }
+
+//******************************************************** SHARE PUBLIC ******************************************************
  async function sharepub()
   {let options = {
   encrypt: false
 }
    try{var tpost=document.getElementById("postpub").value;
        var d=new Date;
-       var dd = d.getDate().toString()+d.getMonth().toString()+d.getFullYear().toString()+d.getHours().toString()+d.getMinutes().toString()+d.getSeconds().toString();
-      
-       var filenamepub='postpub'+dd+'.txt';
+       //var dd = d.getDate().toString()+d.getFullYear().toString()+d.getMonth().toString()+d.getHours().toString()+d.getMinutes().toString()+d.getSeconds().toString();
+       var dd = d.getFullYear().toString()+("0" + (d.getMonth().toString())).slice(-2)+("0" + (d.getDate().toString())).slice(-2)+("0" + (d.getHours().toString())).slice(-2)+("0" + (d.getMinutes().toString())).slice(-2)+("0" + (d.getSeconds().toString())).slice(-2);
+       var filenamepub='PUBLIC_'+dd;
       // document.getElementById("post").value=filename;
     blockstack.putFile(filenamepub, tpost, options);
        document.getElementById("turl").innerHTML=await blockstack.getFileUrl(filenamepub, options);}
    catch(err){
 alert(err.message);}
-  
+  //------------------------------------------------------------------------------
+   {  var listoffiles='';
+      var filenamepubindex='PUB_index';
+  blockstack.listFiles((filename)=>{listoffiles=listoffiles+filename+'X';
+   var str = listoffiles.toString();
+      var listpost = str.split('X');
+      var i;
+      var strr='';
+for (i = 0; i < listpost.length; i++) {
+  var post = listpost[i];
+        if (post[3] =='L') {
+          strr = strr + listpost[i] + 'X';
+          }
+}   
+    var pubindex = strr + filenamepub; 
+    blockstack.putFile(filenamepubindex, pubindex, {encrypt: false });
+    //document.getElementById("global").innerHTML=pubindex                       
+         return true})}
+   //------------------------------------------------------------------------------
   }
  
+//******************************************************** SHARE PRIVATE ******************************************************
   async function sharepriv()
   {let options = {
   encrypt: true
 }
    try{var tpost=document.getElementById("postpriv").value;
        var d=new Date;
-       var dd = d.getDate().toString()+d.getMonth().toString()+d.getFullYear().toString()+d.getHours().toString()+d.getMinutes().toString()+d.getSeconds().toString();
-      
-       var filenamepriv='postpriv'+dd+'.txt';
+       //var dd = d.getDate().toString()+d.getFullYear().toString()+d.getMonth().toString()+d.getHours().toString()+d.getMinutes().toString()+d.getSeconds().toString();
+      var dd = d.getFullYear().toString()+("0" + (d.getMonth().toString())).slice(-2)+("0" + (d.getDate().toString())).slice(-2)+("0" + (d.getHours().toString())).slice(-2)+("0" + (d.getMinutes().toString())).slice(-2)+("0" + (d.getSeconds().toString())).slice(-2);
+       var filenamepriv='PRIVATE_'+dd;
       // document.getElementById("post").value=filename;
     blockstack.putFile(filenamepriv, tpost, options);
        document.getElementById("turl").innerHTML=await blockstack.getFileUrl(filenamepriv, options);}
    catch(err){
 alert(err.message);}
-  
+   
+     //------------------------------------------------------------------------------
+   {  var listoffiles='';
+      var filenameprivindex='PRIV_index';
+  blockstack.listFiles((filename)=>{listoffiles=listoffiles+filename+'X';
+   var str = listoffiles.toString();
+      var listpost = str.split('X');
+      var i;
+      var strr='';
+for (i = 0; i < listpost.length; i++) {
+  var post = listpost[i];
+        if (post[4] =='A') {
+          strr = strr + listpost[i] + 'X';
+          }
+}   
+    var privindex = strr + filenamepriv; 
+    blockstack.putFile(filenameprivindex, privindex, {encrypt: true });
+    //document.getElementById("global").innerHTML=pubindex                       
+         return true})}
+   //------------------------------------------------------------------------------
   }
  
+  
+/*   async function pubindex()
+  {let options = {
+  encrypt: false
+}
+   try{  var tpost=document.getElementById("pubindex").value;      
+       var filenamepubindex='pubindex.txt';
+      // document.getElementById("post").value=filename;
+    blockstack.putFile(filenamepubindex, tpost, options);
+       document.getElementById("purl").innerHTML=await blockstack.getFileUrl(filenamepubindex, options);
+       }
+   catch(err){
+alert(err.message);}
+  }
+  */
+
+  //******************************************************** SHOW PUBLIC POST ******************************************************
   async function showpub()
   {let options = {
   decrypt: false}
@@ -105,7 +161,7 @@ alert(err.message);}
 alert(err.message);
  } }
  
- 
+//******************************************************** SHOW PRIVATE POST ****************************************************** 
    async function showpriv()
   {let options = {
   decrypt: true}
@@ -117,28 +173,141 @@ alert(err.message);
  catch(err){
 alert(err.message);
  } }
+  
+  
+   //******************************************************** SHOW PUBLIC CONTENT ****************************************************** 
+   async function pubcontent(){ 
+     
+  var p='PUB_index';
+  try{var t= await blockstack.getFile(p, {decrypt: false });
+      var listpost = t.split('X');
+      var i;
+      var str='';
+for (i = 0; i < listpost.length; i++) {
+  var x= await blockstack.getFile(listpost[i], {decrypt: false });
+  if(x==null){str=str;}
+  else{str += listpost[i] +"==>"+ x + "<br>";}
+}
+   document.getElementById("pubcontent").innerHTML=str;
+        }
+    catch(err){
+     alert(err.message);}
+     }
+  
+  
+   //******************************************************** SHOW PRIVATE CONTENT ****************************************************** 
+   async function privcontent(){ 
+     
+  var p='PRIV_index';
+  try{var t= await blockstack.getFile(p, {decrypt: true });
+      var listpost = t.split('X');
+      var i;
+      var str='';
+for (i = 0; i < listpost.length; i++) {
+  var x= await blockstack.getFile(listpost[i], {decrypt: true });
+  if(x==null){str=str;}
+  else{str += listpost[i] +"==>"+ x + "<br>";}
+}
+   document.getElementById("privcontent").innerHTML=str;
+   //document.getElementById("global").innerHTML=t;  
+        }
+    catch(err){
+     alert(err.message);}
+     }
+  
  
- 
+//******************************************************** LIST FILES ****************************************************** 
  function listf(){ var listoffiles=' ';
                   document.getElementById("note").innerHTML='display outstanding'    
   blockstack.listFiles((filename)=>{listoffiles=listoffiles+'<br/>'+filename;
    //document.write(filename)
-   
+ 
     document.getElementById("note").innerHTML=listoffiles
-         return true}     )                                               
+         return true}     )
+                  
+          
+     /*  {let options = {encrypt: false}            
+      try{     var li = 'yayaya';
+       var filenamepubindex='pubindex.txt';
+      // document.getElementById("post").value=filename;
+    blockstack.putFile(filenamepubindex, li, options);
+       //document.getElementById("purl").innerHTML=await blockstack.getFileUrl(filenamepubindex, options);
+       }
+   catch(err){
+alert(err.message);}  */
+
+                  
   }
+  
+  /*
+function fct(){ 
+                 var listoffiles='';
+                 var filenamepubindex='pubindex.txt';
+  blockstack.listFiles((filename)=>{listoffiles=listoffiles+filename+'X';
+   var str = listoffiles.toString();
+      var listpost = str.split('X');
+      var i;
+      var j;
+      var strr='';
+for (i = 0; i < listpost.length; i++) {
+  var post = listpost[i];
+        if (post[5] =='u') {
+          strr = strr + listpost[i] + '</br>';
+          }
+}   
+    blockstack.putFile(filenamepubindex, strr, {encrypt: false });
+    document.getElementById("global").innerHTML=strr                        
+         return true})
+  
+    }
+ */
  
- 
+//******************************************************** DELETE A POST ******************************************************
  function deletef(){
+              
   var filetodelete=document.getElementById("posttodelete").value;
-  let options = {
-  wasSigned: false
-}
- try{ blockstack.deleteFile(filetodelete,options)}
- catch(err){
-alert(err.message);}
+  try{ blockstack.deleteFile(filetodelete,{wasSigned: false})}
+ catch(err){alert(err.message);}
+ }
+  
+//******************************************************** DELETE ALL ******************************************************
+  function deleteall(){
+     var listoffiles='';
+  blockstack.listFiles((filename)=>{listoffiles=listoffiles+filename+'X';
+   var str = listoffiles.toString();
+      var listpost = str.split('X');
+      var i;
+for (i = 0; i < listpost.length; i++) {
+  var filetodelete = listpost[i];
+  blockstack.deleteFile(filetodelete,{wasSigned: false}) 
+} 
+return true})
  }
  
+ //******************************************************** OTHER CONTENT ****************************************************** 
+   async function othercontent(){ 
+     
+  var p='PUB_index';
+  var id=document.getElementById("idother").value;
+  try{var t= await blockstack.getFile(p, { username: id, decrypt: false });
+      //var str = t.toString();
+      var listpost = t.split('X');
+      //var listpost = t.split(/\n/);
+      var i;
+      var str='';
+for (i = 0; i < listpost.length; i++) {
+  var x= await blockstack.getFile(listpost[i], { username: id, decrypt: false });
+  if(x==null){str=str;}
+  else{str += listpost[i] +"==>"+ x + "<br>";}
+}
+   document.getElementById("othercontent").innerHTML=str;
+   //document.getElementById("othercontentpost").innerHTML=x;
+        }
+    catch(err){
+     alert(err.message);}
+     }
+     
+     
  async function showof(){ 
   
   var p=document.getElementById("posttoshowo").value;
@@ -162,9 +331,10 @@ catch(err){
 </head>
 <body>
 
-<h2 align="center"> welcome.... clik login to enter the application 86</h2>
+<h2 align="center"> welcome.... clik login to enter the application 102</h2>
 <input align="center" type="button" value="login" id="sig" onclick="signin();" />
  <p id="nom"> </p>
+  <p id="state"> <script>issigin();</script> </p>
  <input align="center" type="button" value="signout" id="sout" onclick="sigout();" />
  <input align="center" type="button" value="isgned" id="issigned" onclick="issigin();" />
  <p id="state"> </p>
@@ -179,42 +349,80 @@ catch(err){
   
   <p > publish some PRIVATE text </p>
  <input align="center" type="text"  id="postpriv" " />
- <input align="center" type="button" value="share private" id="shareriv" onclick="sharepriv();" />
+ <input align="center" type="button" value="share private" id="sharepriv" onclick="sharepriv();" />
   <br/>
  
    <br/> 
   <p > URL of the added post </p>   
    <p id="turl"> URL </p>  
  <p > show a post </p>
+  
+  <!--
+   <br/> 
+  <p> add to pubindex.txt </p>
+ <textarea align="center" type="text" id="pubindex" placeholder="Add your public posts" rows="7" cols="50"></textarea>
+ <input align="center" type="button" value="add to pubindex" id="pubindex" onclick="pubindex();" />
+  <p id="purl">URL : </p>
+  <br/>
+  <br/>
+   -->
  
   <br/>
+    <p > Show a post </p> 
  <input align="center" type="text"  id="posttoshow" />
  <input align="center" type="button" value="show public" id="showpub" onclick="showpub();" />
  <input align="center" type="button" value="show private" id="showpriv" onclick="showpriv();" />
 <p> here your post </p> 
  <p id="posted"></p>
- 
-  <br/> 
-  <p> list of posts  </p>              
+  
+  <br/><br/>
+  <p > Show the public content </p> 
+  <input align="center" type="button" value="show public content" onclick="pubcontent();" />
+  <p id="pubcontent"> <script>pubcontent();</script> </p>
+  
+    <br/><br/>
+  <p > Show the private content </p> 
+  <input align="center" type="button" value="show private content" onclick="privcontent();" />
+  <p id="privcontent"> <script>privcontent();</script> </p>
+  <br/><br/>
+  <!--
+    <br/> 
+  <p> GOOOBAL  </p>              
    <br/>                                                                                  
-    <input align="center" type="button" value="listfiles" id="listf" onclick="listf();" />  
- 
+    <input align="center" type="button" value="global" id="listf" onclick="fct();" />  
+  <br/> 
+  <p id="global"> ...LIST... </p>
+   <br/> 
+  -->
  
   <br/> 
-  <p id="note"> 00000 </p>
+  <p> list of all files  </p>                                                                                               
+    <input align="center" type="button" value="listfiles" id="listf" onclick="listf();" />  
+  <br/> 
+  <p id="note"> ... </p>
    <br/> 
+  
+  
      <br/> 
   <p> delete post  </p>              
-  <br/>
-   <input align="center" type="text"  id="posttodelete" " />
+  <input align="center" type="text"  id="posttodelete" " />
    <input align="center" type="button" value="delete" id="deleteb" onclick="deletef();" />           
-  <br/>                                                                                  
-<p > show a postof other user </p>
   <br/>
- 
+   <br/>
+    <p> DELETE ALL FILES  </p>
+    <input align="center" type="button" value="delete all files" id="deleteall" onclick="deleteall();" /> 
+                                                                                       
+   <br/>                                                                                    
+  <br/>                                                                                   
+<p > show a postof other user </p>
  <p>idof other user</p> 
  <input align="center" type="text"  id="idother" />
- <p>idof the post to show</p>
+ <p>Content of the other user</p>
+ <input align="center" type="button" value="Content" id="showbo" onclick="othercontent();" />
+ <p id="othercontent"> </p>
+ <br/>
+ 
+ <p>post to show</p>
  <input align="center" type="text"  id="posttoshowo" />
  <input align="center" type="button" value="show" id="showbo" onclick="showof();" />
 <p> here your post </p> 
